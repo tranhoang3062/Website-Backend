@@ -1,13 +1,35 @@
-import { Module } from '@nestjs/common';
-import { ProductsController } from './products/products.controller';
-import { CategoriesController } from './categories/categories.controller';
-import { UsersController } from './users/users.controller';
-import { UsersModule } from './users/users.module';
-import { ProductsModule } from './products/products.module';
-import { CategoriesModule } from './categories/categories.module';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { UserModule } from './user/user.module';
+import { ProductImageModule } from './product-image/product-image.module';
+import { CategoryModule } from './category/category.module';
+import { SlideModule } from './slide/slide.module';
+import { VoteModule } from './vote/vote.module';
+import { ArticleModule } from './article/article.module';
+import { MenuModule } from './menu/menu.module';
+import { ProductModule } from './product/product.module';
+import { MiddlewareMiddleware } from './middleware/middleware.middleware';
+import { JwtModule } from '@nestjs/jwt';
+import { OrderModule } from './order/order.module';
 
 @Module({
-  controllers: [ProductsController, CategoriesController, UsersController],
-  imports: [UsersModule, ProductsModule, CategoriesModule]
+    imports: [
+        UserModule, 
+        SlideModule, 
+        ProductImageModule, 
+        CategoryModule,  
+        VoteModule, 
+        ArticleModule, 
+        MenuModule,
+        ProductModule,
+		JwtModule,
+		OrderModule
+    ],
+    providers: [],
+    controllers: []
 })
-export class AdminModule {}
+export class AdminModule implements NestModule{
+	configure(consumer: MiddlewareConsumer) {
+        consumer.apply(MiddlewareMiddleware)
+            .forRoutes('admin');
+    }
+ }

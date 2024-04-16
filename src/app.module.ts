@@ -1,24 +1,39 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AdminModule } from './modules/admin/admin.module';
+import { ShopModule } from './modules/shop/shop.module';
+import { DatabaseModule } from './database/database.module';
+import { APP_FILTER } from '@nestjs/core';
+import { ExceptionsLoggerFilter } from './helpers/helper';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './modules/auth/auth.module';
 import * as Joi from '@hapi/joi';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            envFilePath: '.env',
+	imports: [
+		ConfigModule.forRoot({
             validationSchema: Joi.object({
-                POSTGRES_HOST: Joi.string(),
-                POSTGRES_PORT: Joi.number(),
-                POSTGRES_USER: Joi.string(),
-                POSTGRES_PASSWORD: Joi.string(),
-                POSTGRES_DB: Joi.string(),
-                PORT: Joi.number(),
-            }),
+                POSTGRES_HOST: Joi.string().required(),
+                POSTGRES_PORT: Joi.number().required(),
+                POSTGRES_USER: Joi.string().required(),
+                POSTGRES_PASSWORD: Joi.string().required(),
+                POSTGRES_DB: Joi.string().required(),
+                JWT_SECRET: Joi.string().required(),
+                JWT_EXPIRATION_TIME: Joi.string().required(),
+            })
         }),
-    ],
-    controllers: [AppController],
-    providers: [AppService],
+		DatabaseModule,
+		AdminModule, 
+		ShopModule, 
+		DatabaseModule, 
+		AuthModule,
+		UploadModule
+	],
+	providers: [
+		{
+			provide: APP_FILTER,
+			useClass: ExceptionsLoggerFilter,
+		}
+	],
 })
 export class AppModule { }
